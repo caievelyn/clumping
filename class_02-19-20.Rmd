@@ -1,29 +1,16 @@
 ---
-title: "Gender Clumping in Gov 1006"
-author: "David Kane"
-date: "2/12/2020"
+title: "class_02-19-20"
+author: "Evelyn Cai"
+date: "2/19/2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-Do students clump by gender in Gov 1006? 
-
-Let's ignore the table with all graduate students, since this will never clump. Let's ignore the table with two graduate students. (It is always a good idea to make the initial version of a simulation as simple as possible.) There are 30 remaining students: 16 men and 14 women. Our null model is that they sit down randomly. We can ignore the last two students since they are, by assumption, sitting at the table with 2 graduate students. This leaves us with 28 students (chosen randomly from the 30 undergraduates) sitting at 7 tables of 4 students each.
-
-Define a "clump" as a table of four, all of the same gender. (Other definitions of clumping are possible. One aspect of data science is going from a verbal description to a mathematical formulation.) In class on February 12th, there were three such tables. Is that surprising? Is it evidence of clumping? If students sat randomly, how unusual would it be to see three single-gender tables?
-
-
-```{r tools}
-# Before we run the simulation, we need the basic data and some simple
-# functions. Removing the graduate students, there are 16 men and 14 women in
-# the class. Let's use a vector to represent that information. Implicitly, the
-# first four values in the vector sit at table 1, the second four sit at table 2
-# and so on.
-
+```{r new_clump}
 class30 <- c(rep("M", 16), rep("F", 14))
 
 seat_a_class <- function(){
@@ -70,20 +57,23 @@ calc_clumped_tables <- function(seating){
   # be good!
   
   clumps <- 
-    (sum(plan[1:4] == "F") %in% c(0, 4)) +
-    (sum(plan[5:8] == "F") %in% c(0, 4)) +
-    (sum(plan[9:12] == "F") %in% c(0, 4)) +
-    (sum(plan[13:16] == "F") %in% c(0, 4)) +
-    (sum(plan[17:20] == "F") %in% c(0, 4)) +
-    (sum(plan[21:24] == "F") %in% c(0, 4)) +
-    (sum(plan[25:28] == "F") %in% c(0, 4))
+    (sum(plan[1:4] == "F") %in% c(4)) +
+    (sum(plan[5:8] == "F") %in% c(4)) +
+    (sum(plan[9:12] == "F") %in% c(4)) +
+    (sum(plan[13:16] == "F") %in% c(4)) +
+    (sum(plan[17:20] == "F") %in% c(4)) +
+    (sum(plan[21:24] == "F") %in% c(4)) +
+    (sum(plan[25:28] == "F") %in% c(4))
   
   return(clumps)
 }
 
+
 ```
 
-```{r sim, cache=TRUE}
+
+
+```{r sim}
 # Those are all the tools we need. Many/most of my simulations use the tricks we
 # learned in Gov 1005: list-colums and map_* functions are your friends!
 # https://davidkane9.github.io/PPBDS/6-functions.html#list-columns-and-map_-functions
@@ -100,17 +90,6 @@ new_sim<- sim %>%
   group_by(clumps) %>%
   count() %>%
   mutate(n = n/10000)
-  
-
-
-```
-
- 2.73% of the time via simulation do we get 3 single-gender clumped tables. This is below the statistically significant level of 5%, so we would reject the null hypothesis. But if it were 6%, we can never accept the null hypothesis, so we would merely fail to reject the null hypohesis.
-
-```{r graphics}
-# Once we have the data, plotting is straightforward. The ..prop.. trick
-# required some Googling. Of course, I could just have calculated the
-# percentages by hand.
 
 sim %>% 
   ggplot() + 
@@ -122,6 +101,30 @@ sim %>%
          x = "Number of Single-Gender Tables out of Seven",
          y = "Percentage of Simulations out of 10,000")
 ```
+
+## Class Notes
+Regression to the mean: when you keep sampling variables, they will tend towards the mean, but variabilit stays roughly the same because of an error parameter.
+
+
+```{r midterm_complaints}
+# Grade adjustment on midterms and grade improvements in students' scores
+# RCM: Counterfactual: not adjusting grades; factual: adjusting grades. 
+
+n_1 <- 50
+n_2 <- 50
+
+y_1 <- rnorm(n_1, 50, 10)
+y_2 <- rnorm(n_2, 50, 10)
+score <- c(y_1, y_2)
+
+treatment <- c(rep(0, n_1), rep(1, n_2))
+fake <- data.frame(treatment, score)
+
+```
+
+
+
+
 
 
 
